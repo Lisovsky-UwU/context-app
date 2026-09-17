@@ -3,9 +3,8 @@ import { computed, onMounted, ref } from "vue"
 import { useRoute, useRouter } from "vue-router"
 
 import { api, ApiError } from "../api/client"
-import type { Category } from "../api/types"
 import AddressField from "../components/AddressField.vue"
-import { CATEGORIES } from "../lib/labels"
+import CategoryPicker from "../components/CategoryPicker.vue"
 import { usePlacesStore } from "../stores/places"
 
 const route = useRoute()
@@ -16,7 +15,7 @@ const placeId = computed(() => (route.params.id ? Number(route.params.id) : null
 const editing = computed(() => placeId.value !== null)
 
 const title = ref("")
-const category = ref<Category>("bar")
+const categoryId = ref<number | null>(null)
 const description = ref("")
 const address = ref("")
 const lat = ref<number | null>(null)
@@ -30,7 +29,7 @@ onMounted(async () => {
   try {
     const place = await api.place(placeId.value)
     title.value = place.title
-    category.value = place.category
+    categoryId.value = place.category?.id ?? null
     description.value = place.description
     address.value = place.address
     lat.value = place.lat
@@ -56,7 +55,7 @@ async function submit() {
   error.value = ""
   const payload = {
     title: title.value.trim(),
-    category: category.value,
+    category_id: categoryId.value,
     description: description.value.trim(),
     address: address.value.trim(),
     lat: lat.value,
@@ -81,7 +80,7 @@ async function submit() {
   <div class="page narrow">
     <h1>{{ editing ? "Правим карточку" : "Новое место" }}</h1>
     <p class="muted lead">
-      Название и категория обязательны, остальное можно дописать позже — карточку видят все.
+      Обязательно только название, остальное можно дописать позже — карточку видят все.
     </p>
 
     <form @submit.prevent="submit">
@@ -92,14 +91,7 @@ async function submit() {
         <input v-model="title" class="input" type="text" maxlength="160" required />
       </label>
 
-      <label class="field">
-        <span>Категория</span>
-        <select v-model="category" class="select">
-          <option v-for="option in CATEGORIES" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
-      </label>
+      <CategoryPicker v-model="categoryId" />
 
       <AddressField :address="address" :lat="lat" :lon="lon" @update="onAddress" />
 

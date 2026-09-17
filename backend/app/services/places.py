@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.models import Photo, Place, User, Visit, VisitStatus
 from app.schemas.auth import UserPublic
 from app.schemas.place import (
+    CategoryPublic,
     PhotoPublic,
     PlaceDetail,
     PlaceListItem,
@@ -77,7 +78,7 @@ def _base_fields(place: Place, user: User, visits: list[Visit], photos: list[Pho
     return {
         "id": place.id,
         "title": place.title,
-        "category": place.category,
+        "category": CategoryPublic.model_validate(place.category) if place.category else None,
         "address": place.address,
         "lat": place.lat,
         "lon": place.lon,

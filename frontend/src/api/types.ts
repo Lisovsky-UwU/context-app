@@ -1,6 +1,17 @@
-export type Category = "bar" | "cafe" | "restaurant" | "culture" | "activity" | "nature" | "other"
 export type PlaceStatus = "wish" | "planned" | "visited"
 export type VisitStatus = "planned" | "done" | "cancelled"
+
+export interface Category {
+  id: number
+  name: string
+  color: string
+  place_count: number
+}
+
+export interface CategoryInput {
+  name: string
+  color: string
+}
 
 export interface UserPublic {
   id: number
@@ -59,7 +70,7 @@ export interface VisitBrief {
 export interface Place {
   id: number
   title: string
-  category: Category
+  category: Category | null
   address: string
   lat: number | null
   lon: number | null
@@ -85,7 +96,7 @@ export interface PlaceDetail extends Place {
 
 export interface PlaceInput {
   title: string
-  category: Category
+  category_id: number | null
   description: string
   address: string
   lat: number | null
@@ -95,7 +106,7 @@ export interface PlaceInput {
 
 export interface Visit {
   id: number
-  place: { id: number; title: string; category: Category; address: string }
+  place: { id: number; title: string; category: Category | null; address: string }
   scheduled_date: string
   scheduled_time: string | null
   status: VisitStatus

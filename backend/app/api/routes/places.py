@@ -27,6 +27,11 @@ SORTS = {
 }
 
 
+def _check_category(db: Session, category_id: int | None) -> None:
+    if category_id is not None and db.get(Category, category_id) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Категория не найдена")
+
+
 def _get_place(db: Session, place_id: int) -> Place:
     place = db.get(Place, place_id)
     if place is None:
@@ -39,13 +44,13 @@ def list_places(
     db: Session = Depends(get_db),
     user: User = Depends(current_user),
     status_filter: str | None = Query(default=None, alias="status"),
-    category: Category | None = None,
+    category_id: int | None = None,
     q: str | None = None,
     sort: str = "recent",
 ) -> list[PlaceListItem]:
     query = select(Place)
-    if category:
-        query = query.where(Place.category == category)
+    if category_id:
+        query = query.where(Place.category_id == category_id)
     if q:
         pattern = f"%{q.strip()}%"
         query = query.where(or_(Place.title.ilike(pattern), Place.address.ilike(pattern)))
@@ -61,13 +66,13 @@ def list_places(
 def roulette_pool(
     db: Session = Depends(get_db),
     user: User = Depends(current_user),
-    category: Category | None = None,
+    category_id: int | None = None,
     include_planned: bool = False,
 ) -> list[PlaceListItem]:
     """Места, куда мы ещё не ходили. Запланированные по умолчанию исключаем."""
     query = select(Place)
-    if category:
-        query = query.where(Place.category == category)
+    if category_id:
+        query = query.where(Place.category_id == category_id)
     items = place_service.list_items(db, list(db.scalars(query)), user)
     allowed = {place_service.STATUS_WISH}
     if include_planned:
@@ -81,6 +86,7 @@ def roulette_pool(
 def create_place(
     payload: PlaceInput, db: Session = Depends(get_db), user: User = Depends(current_user)
 ) -> PlaceDetail:
+    _check_category(db, payload.category_id)
     place = Place(**payload.model_dump(), created_by_id=user.id)
     db.add(place)
     db.commit()
@@ -103,7 +109,10 @@ def update_place(
     user: User = Depends(current_user),
 ) -> PlaceDetail:
     place = _get_place(db, place_id)
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    fields = payload.model_dump(exclude_unset=True)
+    if "category_id" in fields:
+        _check_category(db, fields["category_id"])
+    for field, value in fields.items():
         setattr(place, field, value)
     db.commit()
     db.refresh(place)

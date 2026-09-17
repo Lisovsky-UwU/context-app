@@ -2,14 +2,14 @@ import { defineStore } from "pinia"
 import { computed, ref } from "vue"
 
 import { api } from "../api/client"
-import type { Category, Place, PlaceStatus, Visit } from "../api/types"
+import type { Place, PlaceStatus, Visit } from "../api/types"
 
 export const usePlacesStore = defineStore("places", () => {
   const items = ref<Place[]>([])
   const upcoming = ref<Visit[]>([])
   const loading = ref(false)
   const query = ref("")
-  const category = ref<Category | "">("")
+  const category = ref<number>(0)
 
   const counts = computed(() => ({
     wish: items.value.filter((place) => place.status === "wish").length,
@@ -26,7 +26,7 @@ export const usePlacesStore = defineStore("places", () => {
     try {
       items.value = await api.places({
         q: query.value.trim() || undefined,
-        category: category.value || undefined,
+        category_id: category.value || undefined,
       })
     } finally {
       loading.value = false

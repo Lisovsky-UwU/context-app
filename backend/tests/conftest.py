@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
-from app.models import Invite
+from app.models import DEFAULT_CATEGORIES, Category, Invite
 
 
 @pytest.fixture
@@ -26,6 +26,14 @@ def client(tmp_path: Path):
 
     Base.metadata.create_all(engine)
     TestSession = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+    # В рабочей базе стартовый набор категорий заводит миграция.
+    with TestSession() as db:
+        db.add_all(
+            Category(name=name, color=color, position=position)
+            for position, (name, color) in enumerate(DEFAULT_CATEGORIES)
+        )
+        db.commit()
 
     def override_get_db():
         db = TestSession()
@@ -63,6 +71,11 @@ def user(client, invite_code):
     )
     assert response.status_code == 201, response.text
     return response.json()
+
+
+@pytest.fixture
+def categories(client, user) -> dict[str, int]:
+    return {item["name"]: item["id"] for item in client.get("/api/categories").json()}
 
 
 def make_image_bytes(color: str = "purple") -> bytes:

@@ -1,6 +1,7 @@
 import type {
   AppConfig,
   Category,
+  CategoryInput,
   GeoSuggestion,
   Invite,
   Photo,
@@ -49,6 +50,7 @@ const FIELD_HINTS: Record<string, string> = {
   display_name: "Имя — от 2 до 80 символов",
   invite_code: "Проверьте код приглашения",
   title: "Впишите название места",
+  name: "Название категории — до 40 символов",
   scheduled_date: "Выберите дату",
   score: "Оценка — от 1 до 5",
   website_url: "Ссылка должна начинаться с http:// или https://",
@@ -81,7 +83,19 @@ export const api = {
   invites: () => request<Invite[]>("/invites"),
   createInvite: () => request<Invite>("/invites", { method: "POST" }),
 
-  places: (params: { status?: PlaceStatus; category?: Category; q?: string; sort?: string } = {}) => {
+  categories: () => request<Category[]>("/categories"),
+  createCategory: (data: CategoryInput) =>
+    request<Category>("/categories", { method: "POST", body: body(data) }),
+  updateCategory: (id: number, data: Partial<CategoryInput>) =>
+    request<Category>(`/categories/${id}`, { method: "PATCH", body: body(data) }),
+  deleteCategory: (id: number, moveTo?: number | null) => {
+    const suffix = moveTo === undefined ? "" : `?move_to=${moveTo ?? 0}`
+    return request<void>(`/categories/${id}${suffix}`, { method: "DELETE" })
+  },
+
+  places: (
+    params: { status?: PlaceStatus; category_id?: number; q?: string; sort?: string } = {},
+  ) => {
     const search = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
       if (value) search.set(key, String(value))
@@ -98,9 +112,9 @@ export const api = {
     request<PlaceDetail>(`/places/${id}/interest`, { method: interested ? "PUT" : "DELETE" }),
   saveReview: (id: number, score: number, text: string) =>
     request<PlaceDetail>(`/places/${id}/review`, { method: "PUT", body: body({ score, text }) }),
-  roulettePool: (params: { category?: Category; include_planned?: boolean } = {}) => {
+  roulettePool: (params: { category_id?: number; include_planned?: boolean } = {}) => {
     const search = new URLSearchParams()
-    if (params.category) search.set("category", params.category)
+    if (params.category_id) search.set("category_id", String(params.category_id))
     if (params.include_planned) search.set("include_planned", "true")
     const suffix = search.toString()
     return request<Place[]>(`/places/roulette-pool${suffix ? `?${suffix}` : ""}`)

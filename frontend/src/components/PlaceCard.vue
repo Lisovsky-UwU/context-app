@@ -3,7 +3,7 @@ import { computed } from "vue"
 import { RouterLink } from "vue-router"
 
 import type { Place } from "../api/types"
-import { plural, categoryLabel } from "../lib/labels"
+import { accentVar, categoryLabel, plural } from "../lib/labels"
 import StatusStamp from "./StatusStamp.vue"
 
 const props = defineProps<{ place: Place }>()
@@ -22,8 +22,8 @@ const photoNote = computed(() =>
 </script>
 
 <template>
-  <RouterLink :to="{ name: 'place', params: { id: place.id } }" class="card" :class="`card--${place.category}`">
-    <span class="rail" aria-hidden="true" />
+  <RouterLink :to="{ name: 'place', params: { id: place.id } }" class="card">
+    <span class="rail" :style="{ background: accentVar(place.category?.color) }" aria-hidden="true" />
 
     <span class="body">
       <span class="title">{{ place.title }}</span>
@@ -65,15 +65,7 @@ const photoNote = computed(() =>
   position: absolute;
   inset: 0 auto 0 0;
   width: var(--rail);
-  background: var(--cat-other);
 }
-
-.card--bar .rail { background: var(--cat-bar); }
-.card--cafe .rail { background: var(--cat-cafe); }
-.card--restaurant .rail { background: var(--cat-restaurant); }
-.card--culture .rail { background: var(--cat-culture); }
-.card--activity .rail { background: var(--cat-activity); }
-.card--nature .rail { background: var(--cat-nature); }
 
 .body {
   display: grid;

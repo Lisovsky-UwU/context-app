@@ -1,17 +1,25 @@
 import type { Category, PlaceStatus } from "../api/types"
 
-export const CATEGORIES: { value: Category; label: string }[] = [
-  { value: "bar", label: "Бар" },
-  { value: "cafe", label: "Кофейня" },
-  { value: "restaurant", label: "Ресторан" },
-  { value: "culture", label: "Культура" },
-  { value: "activity", label: "Активность" },
-  { value: "nature", label: "Природа" },
-  { value: "other", label: "Другое" },
+/** Ключи палитры из tokens.css: у каждого свой оттенок в светлой и тёмной теме. */
+export const ACCENTS: { value: string; label: string }[] = [
+  { value: "pomegranate", label: "Гранат" },
+  { value: "amber", label: "Янтарь" },
+  { value: "plum", label: "Слива" },
+  { value: "indigo", label: "Индиго" },
+  { value: "mint", label: "Мята" },
+  { value: "olive", label: "Олива" },
+  { value: "teal", label: "Бирюза" },
+  { value: "rose", label: "Роза" },
+  { value: "slate", label: "Графит" },
 ]
 
-export function categoryLabel(value: Category): string {
-  return CATEGORIES.find((item) => item.value === value)?.label ?? "Другое"
+export function accentVar(color: string | undefined): string {
+  const known = ACCENTS.some((accent) => accent.value === color)
+  return `var(--accent-${known ? color : "slate"})`
+}
+
+export function categoryLabel(category: Category | null | undefined): string {
+  return category?.name ?? "Без категории"
 }
 
 export const STATUS_LABEL: Record<PlaceStatus, string> = {

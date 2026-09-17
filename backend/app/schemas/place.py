@@ -2,7 +2,6 @@ from datetime import date, datetime, time
 
 from pydantic import BaseModel, Field
 
-from app.models.place import Category
 from app.schemas.auth import UserPublic
 
 
@@ -39,9 +38,29 @@ class VisitBrief(BaseModel):
     status: str
 
 
+class CategoryPublic(BaseModel):
+    id: int
+    name: str
+    color: str
+    place_count: int = 0
+
+    model_config = {"from_attributes": True}
+
+
+class CategoryInput(BaseModel):
+    name: str = Field(min_length=1, max_length=40)
+    color: str = Field(default="slate", max_length=16)
+
+
+class CategoryPatch(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=40)
+    color: str | None = Field(default=None, max_length=16)
+    position: int | None = None
+
+
 class PlaceInput(BaseModel):
     title: str = Field(min_length=1, max_length=160)
-    category: Category = Category.other
+    category_id: int | None = None
     description: str = Field(default="", max_length=4000)
     address: str = Field(default="", max_length=300)
     lat: float | None = None
@@ -51,7 +70,7 @@ class PlaceInput(BaseModel):
 
 class PlacePatch(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=160)
-    category: Category | None = None
+    category_id: int | None = None
     description: str | None = Field(default=None, max_length=4000)
     address: str | None = Field(default=None, max_length=300)
     lat: float | None = None
@@ -62,7 +81,7 @@ class PlacePatch(BaseModel):
 class PlaceListItem(BaseModel):
     id: int
     title: str
-    category: Category
+    category: CategoryPublic | None
     address: str
     lat: float | None
     lon: float | None

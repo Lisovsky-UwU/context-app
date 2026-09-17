@@ -3,12 +3,12 @@ from datetime import date, timedelta
 from tests.conftest import make_image_bytes
 
 
-def create_place(client, title="Бар «Стрелка»", category="bar"):
+def create_place(client, title="Бар «Стрелка»", category_id=None):
     response = client.post(
         "/api/places",
         json={
             "title": title,
-            "category": category,
+            "category_id": category_id,
             "description": "Говорят, лучший вид на реку",
             "address": "Москва, Берсеневская набережная, 14с5",
             "lat": 55.741,
@@ -19,9 +19,10 @@ def create_place(client, title="Бар «Стрелка»", category="bar"):
     return response.json()
 
 
-def test_place_travels_from_wish_to_visited(client, user):
-    place = create_place(client)
+def test_place_travels_from_wish_to_visited(client, user, categories):
+    place = create_place(client, category_id=categories["Бар"])
     assert place["status"] == "wish"
+    assert place["category"]["name"] == "Бар"
     assert place["created_by"]["display_name"] == "vera"
 
     visit = client.post(
@@ -57,9 +58,9 @@ def test_place_travels_from_wish_to_visited(client, user):
     assert detail["last_visit_date"] == visit["scheduled_date"]
 
 
-def test_roulette_pool_skips_planned_and_visited(client, user):
+def test_roulette_pool_skips_planned_and_visited(client, user, categories):
     wish = create_place(client, "Музей света")
-    planned = create_place(client, "Кофейня «Филин»", category="cafe")
+    planned = create_place(client, "Кофейня «Филин»", category_id=categories["Кофейня"])
 
     client.post(
         "/api/visits",
@@ -75,7 +76,9 @@ def test_roulette_pool_skips_planned_and_visited(client, user):
     with_planned = client.get("/api/places/roulette-pool", params={"include_planned": True}).json()
     assert {item["id"] for item in with_planned} == {wish["id"], planned["id"]}
 
-    empty = client.get("/api/places/roulette-pool", params={"category": "restaurant"}).json()
+    empty = client.get(
+        "/api/places/roulette-pool", params={"category_id": categories["Ресторан"]}
+    ).json()
     assert empty == []
 
 
@@ -99,12 +102,12 @@ def test_interest_and_review(client, user):
     assert len(updated["reviews"]) == 1
 
 
-def test_search_and_filters(client, user):
-    create_place(client, "Бар «Стрелка»")
-    create_place(client, "Кофейня «Филин»", category="cafe")
+def test_search_and_filters(client, user, categories):
+    create_place(client, "Бар «Стрелка»", category_id=categories["Бар"])
+    create_place(client, "Кофейня «Филин»", category_id=categories["Кофейня"])
 
     assert len(client.get("/api/places", params={"q": "филин"}).json()) == 1
-    assert len(client.get("/api/places", params={"category": "bar"}).json()) == 1
+    assert len(client.get("/api/places", params={"category_id": categories["Бар"]}).json()) == 1
     assert len(client.get("/api/places", params={"q": "набережная"}).json()) == 2
 
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import StrEnum
 
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -8,14 +7,38 @@ from app.db.base import Base, timestamp_column, utcnow
 from app.models.user import User
 
 
-class Category(StrEnum):
-    bar = "bar"
-    cafe = "cafe"
-    restaurant = "restaurant"
-    culture = "culture"
-    activity = "activity"
-    nature = "nature"
-    other = "other"
+# Цвет категории — ключ палитры, а не hex: у каждого ключа свои оттенки в светлой и тёмной теме.
+ACCENTS = (
+    "pomegranate",
+    "amber",
+    "plum",
+    "indigo",
+    "mint",
+    "olive",
+    "teal",
+    "rose",
+    "slate",
+)
+
+DEFAULT_CATEGORIES = (
+    ("Бар", "pomegranate"),
+    ("Кофейня", "amber"),
+    ("Ресторан", "plum"),
+    ("Культура", "indigo"),
+    ("Активность", "mint"),
+    ("Природа", "olive"),
+    ("Другое", "slate"),
+)
+
+
+class Category(Base):
+    __tablename__ = "categories"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(40), unique=True)
+    color: Mapped[str] = mapped_column(String(16), default="slate")
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = timestamp_column()
 
 
 class Place(Base):
@@ -23,7 +46,9 @@ class Place(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(160), index=True)
-    category: Mapped[str] = mapped_column(String(32), default=Category.other, index=True)
+    category_id: Mapped[int | None] = mapped_column(
+        ForeignKey("categories.id", ondelete="SET NULL"), index=True
+    )
     description: Mapped[str] = mapped_column(Text, default="")
     address: Mapped[str] = mapped_column(String(300), default="")
     lat: Mapped[float | None] = mapped_column(Float)
@@ -34,6 +59,7 @@ class Place(Base):
     updated_at: Mapped[datetime] = timestamp_column(onupdate=utcnow)
 
     created_by: Mapped["User | None"] = relationship(lazy="joined")
+    category: Mapped["Category | None"] = relationship(lazy="joined")
     interests: Mapped[list["Interest"]] = relationship(
         back_populates="place", cascade="all, delete-orphan", lazy="selectin"
     )

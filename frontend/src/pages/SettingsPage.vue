@@ -4,6 +4,7 @@ import { useRouter } from "vue-router"
 
 import { api } from "../api/client"
 import type { Invite } from "../api/types"
+import CategoryManager from "../components/CategoryManager.vue"
 import { formatDate } from "../lib/format"
 import { useAuthStore } from "../stores/auth"
 import { useThemeStore } from "../stores/theme"
@@ -103,6 +104,15 @@ onMounted(async () => {
     </section>
 
     <section class="block">
+      <h2>Категории</h2>
+      <p class="muted small hint">
+        Название и цвет меняются на месте. Цвет подбирается из палитры, чтобы категории одинаково
+        читались в светлой и тёмной теме.
+      </p>
+      <CategoryManager />
+    </section>
+
+    <section class="block">
       <h2>Приглашения</h2>
       <p class="muted small">
         Код одноразовый: по нему заводит аккаунт один человек. Ссылку можно отправить в чат.
@@ -164,6 +174,10 @@ h1 {
 .small {
   font-size: var(--small);
   margin: 0.2rem 0 0;
+}
+
+.hint {
+  margin-bottom: 0.9rem;
 }
 
 .themes {

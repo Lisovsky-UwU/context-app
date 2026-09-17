@@ -9,7 +9,7 @@ import PhotoStrip from "../components/PhotoStrip.vue"
 import PhotoUploader from "../components/PhotoUploader.vue"
 import VisitPlanner from "../components/VisitPlanner.vue"
 import { formatDate, formatDateTime, relativeDay } from "../lib/format"
-import { categoryLabel, plural } from "../lib/labels"
+import { accentVar, categoryLabel, plural } from "../lib/labels"
 import { useAuthStore } from "../stores/auth"
 import { usePlacesStore } from "../stores/places"
 
@@ -135,7 +135,9 @@ onMounted(load)
 
       <header class="head">
         <div>
-          <p class="kind" :class="`kind--${place.category}`">{{ categoryLabel(place.category) }}</p>
+          <p class="kind" :style="{ color: accentVar(place.category?.color) }">
+            {{ categoryLabel(place.category) }}
+          </p>
           <h1>{{ place.title }}</h1>
           <p v-if="place.address" class="muted address">{{ place.address }}</p>
         </div>
@@ -324,15 +326,7 @@ onMounted(load)
   margin: 0 0 0.25rem;
   font-size: var(--tiny);
   font-weight: 600;
-  color: var(--cat-other);
 }
-
-.kind--bar { color: var(--cat-bar); }
-.kind--cafe { color: var(--cat-cafe); }
-.kind--restaurant { color: var(--cat-restaurant); }
-.kind--culture { color: var(--cat-culture); }
-.kind--activity { color: var(--cat-activity); }
-.kind--nature { color: var(--cat-nature); }
 
 h1 {
   font-size: var(--step-3);

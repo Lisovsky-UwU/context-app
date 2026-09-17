@@ -6,10 +6,11 @@ import EmptyNote from "../components/EmptyNote.vue"
 import PlaceCard from "../components/PlaceCard.vue"
 import type { PlaceStatus } from "../api/types"
 import { formatDateTime, relativeDay } from "../lib/format"
-import { CATEGORIES } from "../lib/labels"
+import { useCategoriesStore } from "../stores/categories"
 import { usePlacesStore } from "../stores/places"
 
 const places = usePlacesStore()
+const categories = useCategoriesStore()
 const tab = ref<PlaceStatus>("wish")
 
 const TABS: { value: PlaceStatus; label: string }[] = [
@@ -47,7 +48,7 @@ watch(
 watch(() => places.category, () => void places.load())
 
 onMounted(async () => {
-  await Promise.all([places.load(), places.loadUpcoming()])
+  await Promise.all([places.load(), places.loadUpcoming(), categories.load()])
 })
 </script>
 
@@ -90,9 +91,9 @@ onMounted(async () => {
         placeholder="Поиск по названию или адресу"
       />
       <select v-model="places.category" class="select kind">
-        <option value="">Все категории</option>
-        <option v-for="option in CATEGORIES" :key="option.value" :value="option.value">
-          {{ option.label }}
+        <option :value="0">Все категории</option>
+        <option v-for="option in categories.items" :key="option.id" :value="option.id">
+          {{ option.name }}
         </option>
       </select>
     </div>

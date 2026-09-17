@@ -4,13 +4,13 @@ from pydantic import BaseModel, Field
 
 from app.models.visit import VisitStatus
 from app.schemas.auth import UserPublic
-from app.schemas.place import PhotoPublic
+from app.schemas.place import CategoryPublic, PhotoPublic
 
 
 class VisitPlaceBrief(BaseModel):
     id: int
     title: str
-    category: str
+    category: CategoryPublic | None
     address: str
 
 

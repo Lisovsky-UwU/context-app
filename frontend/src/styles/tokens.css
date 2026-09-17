@@ -16,13 +16,16 @@
   --amber: #9d6b12;
   --amber-soft: #f7ebd5;
 
-  --cat-bar: #b8304f;
-  --cat-cafe: #9d6b12;
-  --cat-restaurant: #834aa1;
-  --cat-culture: #3a62c4;
-  --cat-activity: #2c8468;
-  --cat-nature: #5c8524;
-  --cat-other: #6f6488;
+  /* Палитра категорий: у каждого ключа свой оттенок в светлой и тёмной теме */
+  --accent-pomegranate: #b8304f;
+  --accent-amber: #9d6b12;
+  --accent-plum: #834aa1;
+  --accent-indigo: #3a62c4;
+  --accent-mint: #2c8468;
+  --accent-olive: #5c8524;
+  --accent-teal: #1c7080;
+  --accent-rose: #b23f7a;
+  --accent-slate: #6f6488;
 
   --shadow-lift: 0 18px 40px -24px rgba(36, 18, 51, 0.55);
   --shadow-stamp: 0 2px 0 rgba(36, 18, 51, 0.06);
@@ -66,13 +69,15 @@
   --amber: #e8b45c;
   --amber-soft: #352a15;
 
-  --cat-bar: #ee7089;
-  --cat-cafe: #e8b45c;
-  --cat-restaurant: #c18ce0;
-  --cat-culture: #7fa0f0;
-  --cat-activity: #5ccaa3;
-  --cat-nature: #a3ce63;
-  --cat-other: #a79bbd;
+  --accent-pomegranate: #ee7089;
+  --accent-amber: #e8b45c;
+  --accent-plum: #c18ce0;
+  --accent-indigo: #7fa0f0;
+  --accent-mint: #5ccaa3;
+  --accent-olive: #a3ce63;
+  --accent-teal: #58c2d6;
+  --accent-rose: #ec86b8;
+  --accent-slate: #a79bbd;
 
   --shadow-lift: 0 22px 48px -26px rgba(0, 0, 0, 0.9);
   --shadow-stamp: 0 2px 0 rgba(0, 0, 0, 0.25);

@@ -3,20 +3,22 @@ import { computed, onMounted, ref } from "vue"
 import { RouterLink } from "vue-router"
 
 import { api } from "../api/client"
-import type { Category, Place, Visit } from "../api/types"
+import type { Place, Visit } from "../api/types"
 import EmptyNote from "../components/EmptyNote.vue"
 import VisitPlanner from "../components/VisitPlanner.vue"
-import { CATEGORIES, categoryLabel } from "../lib/labels"
+import { categoryLabel } from "../lib/labels"
+import { useCategoriesStore } from "../stores/categories"
 import { usePlacesStore } from "../stores/places"
 
 const ITEM_HEIGHT = 72
 const SPIN_MS = 2600
 
 const placesStore = usePlacesStore()
+const categories = useCategoriesStore()
 
 const pool = ref<Place[]>([])
 const loading = ref(true)
-const category = ref<Category | "">("")
+const category = ref<number>(0)
 const strip = ref<Place[]>([])
 const offset = ref(0)
 const spinning = ref(false)
@@ -34,7 +36,7 @@ const sortedPool = computed(() => [...pool.value].sort((a, b) => a.title.localeC
 async function loadPool() {
   loading.value = true
   try {
-    pool.value = await api.roulettePool({ category: category.value || undefined })
+    pool.value = await api.roulettePool({ category_id: category.value || undefined })
     resetReel()
   } finally {
     loading.value = false
@@ -129,7 +131,9 @@ async function onPlanned(visit: Visit) {
   pool.value = pool.value.filter((place) => place.id !== visit.place.id)
 }
 
-onMounted(loadPool)
+onMounted(async () => {
+  await Promise.all([loadPool(), categories.load()])
+})
 </script>
 
 <template>
@@ -143,9 +147,9 @@ onMounted(loadPool)
 
     <div class="controls">
       <select v-model="category" class="select" @change="loadPool">
-        <option value="">Любая категория</option>
-        <option v-for="option in CATEGORIES" :key="option.value" :value="option.value">
-          {{ option.label }}
+        <option :value="0">Любая категория</option>
+        <option v-for="option in categories.items" :key="option.id" :value="option.id">
+          {{ option.name }}
         </option>
       </select>
       <span class="muted count">{{ pool.length }} в барабане</span>
