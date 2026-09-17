@@ -125,6 +125,7 @@ textarea {
 .field {
   display: grid;
   gap: 0.35rem;
+  min-width: 0;
   margin-bottom: 1rem;
 }
 
@@ -147,6 +148,24 @@ textarea {
 .textarea {
   min-height: 120px;
   resize: vertical;
+}
+
+/* Нативные поля даты и времени на телефоне не слушают ширину контейнера
+   и растягиваются по своему содержимому, поэтому задаём её явно. */
+.input[type="date"],
+.input[type="time"] {
+  appearance: none;
+  -webkit-appearance: none;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.input[type="date"] {
+  width: 14rem;
+}
+
+.input[type="time"] {
+  width: 9rem;
 }
 
 .input:focus,
