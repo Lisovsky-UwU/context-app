@@ -71,16 +71,15 @@ onUnmounted(() => document.removeEventListener("keydown", onKey))
 
       <p v-if="error" class="error-note">{{ error }}</p>
 
-      <div class="row">
-        <label class="field">
-          <span>Дата</span>
-          <input v-model="date" class="input" type="date" :min="today" />
-        </label>
-        <label class="field">
-          <span>Время, если известно</span>
-          <input v-model="time" class="input" type="time" />
-        </label>
-      </div>
+      <label class="field">
+        <span>Дата</span>
+        <input v-model="date" class="input" type="date" :min="today" />
+      </label>
+
+      <label class="field">
+        <span>Время, если известно</span>
+        <input v-model="time" class="input" type="time" />
+      </label>
 
       <fieldset class="field">
         <span>Кто идёт</span>
@@ -149,12 +148,6 @@ header {
 header p {
   margin: 0.2rem 0 0;
   font-size: var(--small);
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
 }
 
 fieldset {
