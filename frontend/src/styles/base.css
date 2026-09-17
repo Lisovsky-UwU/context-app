@@ -1,0 +1,261 @@
+@import url("https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@400;500;600;700&display=swap");
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-0);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--step-4);
+}
+h2 {
+  font-size: var(--step-2);
+}
+h3 {
+  font-size: var(--step-1);
+}
+
+p {
+  margin: 0 0 0.75em;
+  max-width: 68ch;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--pomegranate);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Кнопки */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-field);
+  background: transparent;
+  font-family: var(--font-text);
+  font-weight: 600;
+  font-size: var(--small);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--pomegranate);
+  color: #fff;
+}
+:root[data-theme="dark"] .btn--primary {
+  color: #24101a;
+}
+.btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn--ghost {
+  border-color: var(--edge-strong);
+  color: var(--ink);
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--paper-deep);
+}
+
+.btn--quiet {
+  color: var(--ink-soft);
+  min-height: 36px;
+  padding: 0 0.6rem;
+}
+.btn--quiet:hover:not(:disabled) {
+  color: var(--ink);
+}
+
+.btn--wide {
+  width: 100%;
+}
+
+/* Поля */
+.field {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.field > span {
+  font-size: var(--small);
+  color: var(--ink-soft);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--edge-strong);
+  border-radius: var(--radius-field);
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  border-color: var(--pomegranate);
+  outline: none;
+}
+
+/* Общие блоки */
+.sheet {
+  background: var(--card);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+}
+
+.page {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 1.25rem var(--page-gutter) 6rem;
+}
+
+.muted {
+  color: var(--ink-soft);
+}
+
+.error-note {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--pomegranate);
+  background: var(--pomegranate-soft);
+  color: var(--ink);
+  font-size: var(--small);
+  border-radius: 0 var(--radius-field) var(--radius-field) 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Страницы входа: карточка с язычком на разлинованной бумаге */
+.gate {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem var(--page-gutter);
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0 38px,
+      color-mix(in srgb, var(--edge) 45%, transparent) 38px 39px
+    ),
+    var(--paper);
+}
+
+.gate__card {
+  position: relative;
+  width: min(420px, 100%);
+  padding: 2rem 1.5rem 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-lift);
+}
+
+.gate__tab {
+  position: absolute;
+  top: -18px;
+  left: 24px;
+  padding: 0.25rem 0.9rem;
+  background: var(--pomegranate);
+  color: #fff;
+  border-radius: 6px 6px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--tiny);
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .gate__tab {
+  color: #24101a;
+}
+
+.gate__card h1 {
+  font-size: var(--step-3);
+  margin-bottom: 0.4rem;
+}
+
+.gate__lead {
+  font-size: var(--small);
+  margin-bottom: 1.5rem;
+}
+
+.gate__switch {
+  margin: 1rem 0 0;
+  font-size: var(--small);
+}

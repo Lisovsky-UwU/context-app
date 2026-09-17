@@ -1,0 +1,81 @@
+/* Палитра «картотеки»: сливовый инк, бумага с лиловым подтоном, три сигнальных цвета */
+:root {
+  --paper: #f1eff6;
+  --paper-deep: #e7e3ef;
+  --card: #fcfbfe;
+  --edge: #ded7e9;
+  --edge-strong: #c8bedb;
+  --ink: #241c33;
+  --ink-soft: #675d7d;
+  --ink-faint: #8f86a3;
+
+  --pomegranate: #b8304f;
+  --pomegranate-soft: #f6e3e8;
+  --mint: #2c8468;
+  --mint-soft: #dff0e9;
+  --amber: #9d6b12;
+  --amber-soft: #f7ebd5;
+
+  --cat-bar: #b8304f;
+  --cat-cafe: #9d6b12;
+  --cat-restaurant: #834aa1;
+  --cat-culture: #3a62c4;
+  --cat-activity: #2c8468;
+  --cat-nature: #5c8524;
+  --cat-other: #6f6488;
+
+  --shadow-lift: 0 18px 40px -24px rgba(36, 18, 51, 0.55);
+  --shadow-stamp: 0 2px 0 rgba(36, 18, 51, 0.06);
+
+  --font-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --font-text: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --step-0: 1rem;
+  --step-1: 1.125rem;
+  --step-2: 1.375rem;
+  --step-3: 1.75rem;
+  --step-4: 2.25rem;
+  --small: 0.875rem;
+  --tiny: 0.75rem;
+
+  --radius-card: 14px;
+  --radius-field: 9px;
+  --radius-pill: 999px;
+
+  --rail: 6px;
+  --page-gutter: 16px;
+  --content-max: 960px;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --paper: #15111d;
+  --paper-deep: #100d17;
+  --card: #1f1a2b;
+  --edge: #2f2740;
+  --edge-strong: #453a5c;
+  --ink: #f0eaf7;
+  --ink-soft: #b1a6c4;
+  --ink-faint: #8579a0;
+
+  --pomegranate: #ee7089;
+  --pomegranate-soft: #3a1b26;
+  --mint: #5ccaa3;
+  --mint-soft: #14332a;
+  --amber: #e8b45c;
+  --amber-soft: #352a15;
+
+  --cat-bar: #ee7089;
+  --cat-cafe: #e8b45c;
+  --cat-restaurant: #c18ce0;
+  --cat-culture: #7fa0f0;
+  --cat-activity: #5ccaa3;
+  --cat-nature: #a3ce63;
+  --cat-other: #a79bbd;
+
+  --shadow-lift: 0 22px 48px -26px rgba(0, 0, 0, 0.9);
+  --shadow-stamp: 0 2px 0 rgba(0, 0, 0, 0.25);
+
+  color-scheme: dark;
+}

@@ -1,0 +1,54 @@
+name: context-app
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-context}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-context}
+      POSTGRES_DB: ${POSTGRES_DB:-context}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-context}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-context}:${POSTGRES_PASSWORD:-context}@db:5432/${POSTGRES_DB:-context}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY не задан}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      DADATA_API_KEY: ${DADATA_API_KEY:-}
+      DEFAULT_CITY: ${DEFAULT_CITY:-Москва}
+      DEFAULT_CENTER_LAT: ${DEFAULT_CENTER_LAT:-55.751244}
+      DEFAULT_CENTER_LON: ${DEFAULT_CENTER_LON:-37.618423}
+      UPLOAD_DIR: /data/uploads
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-15}
+    volumes:
+      - uploads:/data/uploads
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      - uploads:/srv/media:ro
+
+volumes:
+  db_data:
+  uploads:

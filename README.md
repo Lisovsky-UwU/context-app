@@ -1,0 +1,90 @@
+# Контекст
+
+Приватный сайт для компании друзей: общая картотека заведений — куда хотим сходить, куда уже сходили.
+У места есть карточка с адресом на карте, ссылками в Яндекс.Карты и 2ГИС, фотографиями с посещения и
+оценками. Есть рулетка: крутит непосещённые места, выпавшее можно переролить или назначить дату,
+которую увидят все участники.
+
+Интерфейс русский, темы светлая и тёмная, вход по имени пользователя, регистрация только по
+одноразовому коду приглашения.
+
+## Что внутри
+
+- **backend** — FastAPI + SQLAlchemy 2 + Alembic, Postgres, сессия в httpOnly-куке (JWT), пароли argon2,
+  обработка фотографий через Pillow (webp + превью).
+- **frontend** — Vue 3 + TypeScript + Vite + Pinia + vue-router.
+- **deploy** — docker compose (Postgres, backend, nginx со статикой), примеры конфигов nginx.
+
+Карта — встраиваемый виджет Яндекс.Карт: ключ и подписка не нужны. Подсказки адресов — DaData
+(бесплатный тариф), ключ живёт только на сервере.
+
+## Разработка
+
+Нужны Docker (для Postgres), Python 3.12+ с [uv](https://docs.astral.sh/uv/) и Node 20+.
+
+```bash
+# база для разработки на порту 5433
+docker compose -f deploy/dev-db.yml up -d
+
+# бэкенд
+cd backend
+cp .env.example .env          # DATABASE_URL уже указывает на localhost:5433
+uv sync
+uv run alembic upgrade head
+uv run python -m app.scripts.invite      # код для регистрации первого участника
+uv run uvicorn app.main:app --reload --port 8000
+
+# фронтенд (в отдельном терминале)
+cd frontend
+npm install
+npm run dev                   # http://localhost:5173, /api проксируется на бэкенд
+```
+
+Примеры мест для проверки интерфейса: `uv run python -m app.scripts.seed_demo`.
+
+Тесты бэкенда (на SQLite, Postgres не нужен): `cd backend && uv run pytest`.
+
+## Развёртывание
+
+TLS держит внешний nginx, приложение отдаёт наружу один HTTP-порт.
+
+```bash
+cp .env.example .env
+# заполните SECRET_KEY (openssl rand -hex 32), POSTGRES_PASSWORD, DADATA_API_KEY
+docker compose --env-file .env -f deploy/docker-compose.yml up -d --build
+```
+
+Поднимутся три контейнера: Postgres, backend (миграции применяются при старте) и nginx, который отдаёт
+статику, проксирует `/api` и раздаёт фотографии из `/media`. Наружу смотрит `APP_PORT` (по умолчанию 8080).
+
+Конфиг для внешнего nginx — `deploy/nginx/external.example.conf`: подставьте домен, пути к сертификатам
+и проксируйте на этот порт. `client_max_body_size` должен быть не меньше `MAX_UPLOAD_MB`.
+
+Первый код приглашения на сервере:
+
+```bash
+docker compose --env-file .env -f deploy/docker-compose.yml exec backend python -m app.scripts.invite
+```
+
+Дальше коды создаются в интерфейсе: Профиль → Приглашения. Код одноразовый, ссылку вида
+`https://ваш-домен/register?code=XXXX` можно отправить в чат.
+
+## Настройки окружения
+
+| Переменная | Зачем |
+| --- | --- |
+| `SECRET_KEY` | подпись сессионной куки, обязателен |
+| `COOKIE_SECURE` | `true` в проде (кука только по https) |
+| `DADATA_API_KEY` | подсказки адресов; без него адрес вводится вручную, карта ищет по тексту |
+| `DEFAULT_CITY`, `DEFAULT_CENTER_*` | город по умолчанию для подсказок и центра карты |
+| `MAX_UPLOAD_MB` | лимит на одну фотографию |
+| `APP_PORT` | порт, который слушает внутренний nginx на сервере |
+
+## Данные
+
+Фотографии лежат в томе `uploads` (внутри контейнера `/data/uploads`), база — в томе `db_data`.
+Для бэкапа достаточно скопировать том с фотографиями и сделать `pg_dump`.
+
+Имена файлов случайные, `/media` отдаётся nginx без проверки сессии: ссылку на конкретное фото можно
+переслать, подобрать её со стороны нельзя. Если понадобится строгая приватность — уберите `location /media/`
+из `deploy/nginx/app.conf`, и файлы будет отдавать бэкенд.
