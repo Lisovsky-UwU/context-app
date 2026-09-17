@@ -26,7 +26,12 @@ export const useAuthStore = defineStore("auth", () => {
     members.value = await api.users()
   }
 
-  async function register(data: { username: string; password: string; invite_code: string }) {
+  async function register(data: {
+    username: string
+    password: string
+    invite_code: string
+    display_name?: string
+  }) {
     user.value = await api.register(data)
     members.value = await api.users()
   }

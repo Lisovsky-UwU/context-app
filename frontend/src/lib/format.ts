@@ -38,6 +38,21 @@ export function daysUntil(value: string): number {
   return Math.round((parseDate(value).getTime() - today.getTime()) / 86_400_000)
 }
 
+const WEEKDAYS_AT = [
+  "в воскресенье", "в понедельник", "во вторник", "в среду",
+  "в четверг", "в пятницу", "в субботу",
+]
+
+/** Заголовок для ближайшего похода: «завтра», «в субботу», «20 сентября». */
+export function outingHeadline(value: string): string {
+  const days = daysUntil(value)
+  if (days === 0) return "сегодня"
+  if (days === 1) return "завтра"
+  if (days === 2) return "послезавтра"
+  if (days > 2 && days <= 7) return WEEKDAYS_AT[parseDate(value).getDay()]
+  return formatDate(value)
+}
+
 export function relativeDay(value: string): string {
   const days = daysUntil(value)
   if (days === 0) return "сегодня"

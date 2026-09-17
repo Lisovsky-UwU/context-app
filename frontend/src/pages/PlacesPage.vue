@@ -5,7 +5,7 @@ import { RouterLink } from "vue-router"
 import EmptyNote from "../components/EmptyNote.vue"
 import PlaceCard from "../components/PlaceCard.vue"
 import type { PlaceStatus } from "../api/types"
-import { formatDateTime, relativeDay } from "../lib/format"
+import { formatDate, formatTime, outingHeadline } from "../lib/format"
 import { useCategoriesStore } from "../stores/categories"
 import { usePlacesStore } from "../stores/places"
 
@@ -55,15 +55,22 @@ onMounted(async () => {
 <template>
   <div class="page">
     <section v-if="nextOuting" class="next">
-      <div class="next__when">
-        <span class="next__day">{{ relativeDay(nextOuting.scheduled_date) }}</span>
-        <span class="next__exact">{{ formatDateTime(nextOuting.scheduled_date, nextOuting.scheduled_time) }}</span>
-      </div>
+      <span class="next__tab">Идём</span>
+
+      <p class="next__day">
+        {{ outingHeadline(nextOuting.scheduled_date) }}<template
+          v-if="nextOuting.scheduled_time"
+        >, {{ formatTime(nextOuting.scheduled_time) }}</template>
+      </p>
+
       <RouterLink class="next__place" :to="{ name: 'place', params: { id: nextOuting.place.id } }">
         {{ nextOuting.place.title }}
       </RouterLink>
-      <p v-if="nextOuting.participants.length" class="next__who muted">
-        {{ nextOuting.participants.map((person) => person.display_name).join(", ") }}
+
+      <p class="next__line muted">
+        {{ formatDate(nextOuting.scheduled_date, { weekday: true }) }}<template
+          v-if="nextOuting.participants.length"
+        >. Идут: {{ nextOuting.participants.map((person) => person.display_name).join(", ") }}</template>
       </p>
     </section>
 
@@ -117,35 +124,48 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Карточка, выдвинутая из картотеки: ближайший поход стоит выше остальных */
 .next {
-  display: grid;
-  gap: 0.2rem;
-  padding: 1rem 1.1rem;
-  margin-bottom: 1.5rem;
+  position: relative;
+  margin: 0.75rem 0 1.75rem;
+  padding: 1.1rem 1.2rem 1rem;
   border: 1px solid var(--amber);
   border-left-width: 5px;
   border-radius: var(--radius-card);
   background: var(--amber-soft);
+  box-shadow: var(--shadow-lift);
 }
 
-.next__when {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+.next__tab {
+  position: absolute;
+  top: -13px;
+  left: 18px;
+  padding: 0.1rem 0.7rem;
+  border-radius: 5px 5px 0 0;
+  background: var(--amber);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-size: var(--tiny);
+  font-weight: 600;
+}
+
+:root[data-theme="dark"] .next__tab {
+  color: #2a1e06;
 }
 
 .next__day {
+  margin: 0;
   font-family: var(--font-display);
+  font-size: var(--step-3);
   font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
   color: var(--amber);
 }
 
-.next__exact {
-  font-size: var(--tiny);
-  color: var(--ink-soft);
-}
-
 .next__place {
+  display: inline-block;
+  margin-top: 0.15rem;
   font-family: var(--font-display);
   font-size: var(--step-2);
   font-weight: 600;
@@ -153,9 +173,21 @@ onMounted(async () => {
   text-decoration: none;
 }
 
-.next__who {
-  margin: 0;
+.next__place:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.next__line {
+  margin: 0.35rem 0 0;
   font-size: var(--small);
+}
+
+@media (min-width: 720px) {
+  .next {
+    margin-left: -0.9rem;
+    margin-right: 0.9rem;
+  }
 }
 
 .tabs {

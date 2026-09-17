@@ -52,7 +52,8 @@ def register(payload: RegisterRequest, response: Response, db: Session = Depends
     user = User(
         username=username,
         password_hash=hash_password(payload.password),
-        display_name=username,
+        # Имя необязательно: пока его нет, друзья видят логин.
+        display_name=(payload.display_name or "").strip() or username,
     )
     db.add(user)
     db.flush()

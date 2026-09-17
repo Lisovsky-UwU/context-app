@@ -10,6 +10,7 @@ const router = useRouter()
 const route = useRoute()
 
 const username = ref("")
+const displayName = ref("")
 const password = ref("")
 const inviteCode = ref("")
 const busy = ref(false)
@@ -26,6 +27,7 @@ async function submit() {
   try {
     await auth.register({
       username: username.value.trim(),
+      display_name: displayName.value.trim() || undefined,
       password: password.value,
       invite_code: inviteCode.value.trim().toUpperCase(),
     })
@@ -67,9 +69,13 @@ async function submit() {
             maxlength="32"
             pattern="[A-Za-z0-9_.\-]+"
           />
-          <small class="muted hint">
-            Латиница и цифры. Так вас будут видеть друзья — имя можно поменять в профиле.
-          </small>
+          <small class="muted hint">Латиница и цифры — с ним вы входите.</small>
+        </label>
+
+        <label class="field">
+          <span>Имя</span>
+          <input v-model="displayName" class="input" type="text" maxlength="80" placeholder="Как вас зовут" />
+          <small class="muted hint">Его видят друзья в списках и походах. Можно поменять в профиле.</small>
         </label>
 
         <label class="field">

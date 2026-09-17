@@ -40,6 +40,28 @@ def test_username_is_taken_only_once(client, invite_code, user):
     assert "занято" in response.json()["detail"]
 
 
+def test_display_name_defaults_to_login_and_can_be_set(client, invite_code, user):
+    assert user["display_name"] == "vera"
+
+    second = client.post("/api/invites").json()["code"]
+    client.post("/api/auth/logout")
+    registered = client.post(
+        "/api/auth/register",
+        json={
+            "username": "petya",
+            "password": "parol123",
+            "invite_code": second,
+            "display_name": "Петя",
+        },
+    ).json()
+    assert registered["display_name"] == "Петя"
+    assert registered["username"] == "petya"
+
+    renamed = client.patch("/api/auth/me", json={"display_name": "Пётр"}).json()
+    assert renamed["display_name"] == "Пётр"
+    assert renamed["username"] == "petya"
+
+
 def test_member_can_create_invite(client, user):
     response = client.post("/api/invites")
     assert response.status_code == 201

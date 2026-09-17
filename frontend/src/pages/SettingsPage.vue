@@ -70,7 +70,7 @@ onMounted(async () => {
     <h1>Профиль</h1>
 
     <section class="block">
-      <h2>Имя для друзей</h2>
+      <h2>Имя</h2>
       <div class="row">
         <input v-model="name" class="input" type="text" maxlength="80" />
         <button class="btn btn--ghost" type="button" :disabled="savingName" @click="saveName">
@@ -78,7 +78,7 @@ onMounted(async () => {
         </button>
       </div>
       <p v-if="nameSaved" class="muted small">Готово, друзья увидят новое имя.</p>
-      <p class="muted small">Вход по имени {{ auth.user?.username }}</p>
+      <p class="muted small">Так вас видят друзья. Логин для входа — {{ auth.user?.username }}</p>
     </section>
 
     <section class="block">

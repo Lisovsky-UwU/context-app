@@ -77,6 +77,7 @@ export interface Place {
   status: PlaceStatus
   interest_count: number
   interested: boolean
+  interested_by: UserPublic[]
   photo_count: number
   cover_url: string | null
   average_score: number | null
@@ -89,7 +90,6 @@ export interface PlaceDetail extends Place {
   description: string
   website_url: string | null
   created_at: string
-  interested_by: UserPublic[]
   reviews: Review[]
   my_review: Review | null
 }

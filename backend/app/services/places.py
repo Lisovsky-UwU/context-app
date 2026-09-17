@@ -85,6 +85,10 @@ def _base_fields(place: Place, user: User, visits: list[Visit], photos: list[Pho
         "status": status,
         "interest_count": len(place.interests),
         "interested": any(i.user_id == user.id for i in place.interests),
+        "interested_by": [
+            UserPublic.model_validate(interest.user)
+            for interest in sorted(place.interests, key=lambda item: item.created_at)
+        ],
         "photo_count": len(photos),
         "cover_url": media_url(photos[0].thumb_filename) if photos else None,
         "average_score": round(sum(scores) / len(scores), 1) if scores else None,
@@ -117,7 +121,6 @@ def detail(db: Session, place: Place, user: User) -> PlaceDetail:
         description=place.description,
         website_url=place.website_url,
         created_at=place.created_at,
-        interested_by=[UserPublic.model_validate(i.user) for i in place.interests],
         reviews=sorted(reviews, key=lambda r: r.created_at, reverse=True),
         my_review=next((r for r in reviews if r.user.id == user.id), None),
     )

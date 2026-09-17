@@ -26,6 +26,7 @@ class LoginRequest(BaseModel):
 
 class RegisterRequest(LoginRequest):
     invite_code: str = Field(min_length=4, max_length=32)
+    display_name: str | None = Field(default=None, max_length=80)
 
 
 class ProfileUpdate(BaseModel):

@@ -3,10 +3,8 @@ import { computed } from "vue"
 import { RouterLink, useRoute, useRouter } from "vue-router"
 
 import { useAuthStore } from "../stores/auth"
-import { useThemeStore } from "../stores/theme"
 
 const auth = useAuthStore()
-const theme = useThemeStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -14,6 +12,7 @@ const initials = computed(() => auth.user?.display_name.slice(0, 1).toUpperCase(
 
 const links = [
   { name: "places", label: "Места" },
+  { name: "map", label: "Карта" },
   { name: "roulette", label: "Рулетка" },
   { name: "settings", label: "Профиль" },
 ]
@@ -48,10 +47,6 @@ function goAdd() {
       </nav>
 
       <div class="tools">
-        <button class="icon" type="button" @click="theme.toggle()" :title="theme.theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'">
-          <span aria-hidden="true">{{ theme.theme === "dark" ? "☀" : "☾" }}</span>
-          <span class="visually-hidden">Переключить тему</span>
-        </button>
         <button class="add" type="button" title="Добавить место" @click="goAdd">
           <span aria-hidden="true">+</span>
           <span class="add__word">Место</span>
@@ -122,17 +117,6 @@ function goAdd() {
   gap: 0.5rem;
 }
 
-.icon {
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--edge);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  line-height: 1;
-}
-
 .add {
   display: inline-flex;
   align-items: center;
@@ -194,12 +178,6 @@ function goAdd() {
 
   .link {
     padding: 0.5rem 0.6rem;
-  }
-
-  .icon {
-    width: 36px;
-    height: 36px;
-    flex: none;
   }
 
   .add {

@@ -73,7 +73,12 @@ export const api = {
   me: () => request<UserMe>("/auth/me"),
   login: (username: string, password: string) =>
     request<UserMe>("/auth/login", { method: "POST", body: body({ username, password }) }),
-  register: (data: { username: string; password: string; invite_code: string }) =>
+  register: (data: {
+    username: string
+    password: string
+    invite_code: string
+    display_name?: string
+  }) =>
     request<UserMe>("/auth/register", { method: "POST", body: body(data) }),
   logout: () => request<void>("/auth/logout", { method: "POST" }),
   updateProfile: (data: { display_name?: string }) =>

@@ -19,6 +19,15 @@ const photoNote = computed(() =>
     ? `${props.place.photo_count} ${plural(props.place.photo_count, "фото", "фото", "фото")}`
     : "",
 )
+
+/** Имена тех, кто хочет сюда: длинный список сворачиваем, чтобы строка не разъезжалась. */
+const wanted = computed(() => {
+  const names = props.place.interested_by.map((person) => person.display_name)
+  if (!names.length) return ""
+  if (names.length <= 3) return `Хотят: ${names.join(", ")}`
+  const rest = names.length - 2
+  return `Хотят: ${names.slice(0, 2).join(", ")} и ещё ${rest}`
+})
 </script>
 
 <template>
@@ -30,9 +39,7 @@ const photoNote = computed(() =>
       <span class="meta">{{ meta }}</span>
 
       <span class="marks">
-        <span v-if="place.interest_count" class="mark">
-          {{ place.interest_count }} {{ plural(place.interest_count, "хочет", "хотят", "хотят") }}
-        </span>
+        <span v-if="wanted" class="mark mark--wanted">{{ wanted }}</span>
         <span v-if="place.average_score" class="mark">{{ place.average_score }} из 5</span>
         <span v-if="photoNote" class="mark">{{ photoNote }}</span>
       </span>
@@ -97,6 +104,10 @@ const photoNote = computed(() =>
   margin-top: 0.2rem;
   font-size: var(--tiny);
   color: var(--ink-faint);
+}
+
+.mark--wanted {
+  color: var(--ink-soft);
 }
 
 .cover {

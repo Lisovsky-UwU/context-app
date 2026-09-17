@@ -88,6 +88,7 @@ class PlaceListItem(BaseModel):
     status: str
     interest_count: int
     interested: bool
+    interested_by: list[UserPublic]
     photo_count: int
     cover_url: str | None
     average_score: float | None
@@ -100,7 +101,6 @@ class PlaceDetail(PlaceListItem):
     description: str
     website_url: str | None
     created_at: datetime
-    interested_by: list[UserPublic]
     reviews: list[ReviewPublic]
     my_review: ReviewPublic | None
 

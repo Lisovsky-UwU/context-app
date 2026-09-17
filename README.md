@@ -12,10 +12,11 @@
 
 - **backend** — FastAPI + SQLAlchemy 2 + Alembic, Postgres, сессия в httpOnly-куке (JWT), пароли argon2,
   обработка фотографий через Pillow (webp + превью).
-- **frontend** — Vue 3 + TypeScript + Vite + Pinia + vue-router.
+- **frontend** — Vue 3 + TypeScript + Vite + Pinia + vue-router, карта всех мест на Leaflet.
 - **deploy** — docker compose (Postgres, backend, nginx со статикой), примеры конфигов nginx.
 
-Карта — встраиваемый виджет Яндекс.Карт: ключ и подписка не нужны. Подсказки адресов — DaData
+Карта места — встраиваемый виджет Яндекс.Карт, общая карта на вкладке «Карта» — Leaflet с тайлами
+CARTO под светлую и тёмную тему. Ключи и подписка не нужны ни там, ни там. Подсказки адресов — DaData
 (бесплатный тариф), ключ живёт только на сервере.
 
 ## Разработка

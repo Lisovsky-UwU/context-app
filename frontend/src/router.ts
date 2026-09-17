@@ -7,6 +7,7 @@ export const router = createRouter({
   scrollBehavior: (_to, _from, saved) => saved ?? { top: 0 },
   routes: [
     { path: "/", name: "places", component: () => import("./pages/PlacesPage.vue") },
+    { path: "/map", name: "map", component: () => import("./pages/MapPage.vue") },
     { path: "/roulette", name: "roulette", component: () => import("./pages/RoulettePage.vue") },
     { path: "/places/new", name: "place-new", component: () => import("./pages/PlaceFormPage.vue") },
     { path: "/places/:id", name: "place", component: () => import("./pages/PlacePage.vue") },

@@ -88,6 +88,10 @@ def test_interest_and_review(client, user):
     interested = client.put(f"/api/places/{place['id']}/interest").json()
     assert interested["interest_count"] == 1
     assert interested["interested"] is True
+    assert [person["display_name"] for person in interested["interested_by"]] == ["vera"]
+
+    listed = client.get("/api/places").json()[0]
+    assert [person["display_name"] for person in listed["interested_by"]] == ["vera"]
     assert client.put(f"/api/places/{place['id']}/interest").json()["interest_count"] == 1
 
     dropped = client.delete(f"/api/places/{place['id']}/interest").json()
