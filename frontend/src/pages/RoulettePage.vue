@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue"
+import { computed, nextTick, onMounted, ref } from "vue"
 import { RouterLink } from "vue-router"
 
 import { api } from "../api/client"
@@ -22,12 +22,14 @@ const category = ref<number>(0)
 const strip = ref<Place[]>([])
 const offset = ref(0)
 const spinning = ref(false)
+const running = ref(false)
 const winner = ref<Place | null>(null)
 const planning = ref(false)
 const planned = ref<Visit | null>(null)
 const manualOpen = ref(false)
 
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+// Настройку читаем в момент прокрута: если её переключили, приложение подхватит это без перезагрузки.
+const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
 const transition = computed(() =>
   spinning.value ? `transform ${SPIN_MS}ms cubic-bezier(0.12, 0.72, 0.1, 1)` : "none",
 )
@@ -80,40 +82,58 @@ function pickWeighted(candidates: Place[]): Place {
   return tickets[Math.floor(Math.random() * tickets.length)]
 }
 
+const nextFrame = () =>
+  new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
 async function spin() {
-  if (!pool.value.length || spinning.value) return
+  if (!pool.value.length || running.value) return
 
   const candidates = winner.value ? pool.value.filter((item) => item.id !== winner.value?.id) : pool.value
   const target = pickWeighted(candidates.length ? candidates : pool.value)
 
+  running.value = true
   planned.value = null
   winner.value = null
 
-  if (reduceMotion) {
+  if (prefersReducedMotion()) {
     showStill(target)
     winner.value = target
+    running.value = false
     return
   }
 
-  // Лента случайных названий, в которой выпавшее место стоит на известной позиции.
+  // Лента начинается с тех строк, что сейчас в окне, — иначе барабан дёргается на старте.
+  const head = strip.value.slice(0, 2)
+
+  // Дальше случайные названия, выпавшее место стоит на известной позиции.
   // Соседние строки не повторяются, иначе барабан выглядит сломанным.
   const filler: Place[] = []
   const length = Math.max(18, pool.value.length * 3)
   while (filler.length < length) {
+    const previous = filler.at(-1) ?? head.at(-1)
     const isLast = filler.length === length - 1
-    filler.push(randomOther(filler.at(-1), isLast ? target : undefined))
+    filler.push(randomOther(previous, isLast ? target : undefined))
   }
   const after = randomOther(target)
-  strip.value = [...filler, target, after, randomOther(after)]
-  offset.value = 0
-  spinning.value = true
 
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
-  offset.value = (filler.length - 1) * ITEM_HEIGHT
+  const targetIndex = head.length + filler.length
+  strip.value = [...head, ...filler, target, after, randomOther(after)]
+
+  // Сначала ставим ленту в начало без плавности…
+  spinning.value = false
+  offset.value = 0
+  await nextTick()
+  await nextFrame()
+
+  // …и только следующим кадром включаем её и запускаем прокрутку.
+  spinning.value = true
+  await nextTick()
+  offset.value = (targetIndex - 1) * ITEM_HEIGHT
 
   window.setTimeout(() => {
     spinning.value = false
     winner.value = target
+    running.value = false
   }, SPIN_MS)
 }
 
@@ -179,21 +199,21 @@ onMounted(async () => {
       </div>
 
       <div class="actions">
-        <button class="btn btn--primary" type="button" :disabled="spinning" @click="spin">
+        <button class="btn btn--primary" type="button" :disabled="running" @click="spin">
           {{ winner ? "Крутить ещё" : "Крутить" }}
         </button>
         <button
           v-if="winner && !planned"
           class="btn btn--ghost"
           type="button"
-          :disabled="spinning"
+          :disabled="running"
           @click="planning = true"
         >
           Идём сюда
         </button>
       </div>
 
-      <section v-if="winner && !spinning" class="result">
+      <section v-if="winner && !running" class="result">
         <p v-if="planned" class="done">
           Договорились: {{ winner.title }}. Дата уже видна всем в списке.
         </p>
