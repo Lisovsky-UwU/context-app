@@ -8,20 +8,17 @@ import { relativeDay, stampDate } from "../lib/format"
 import { accentVar, categoryLabel } from "../lib/labels"
 import { useAuthStore } from "../stores/auth"
 import { usePlacesStore } from "../stores/places"
-import { useThemeStore } from "../stores/theme"
 
 import "leaflet/dist/leaflet.css"
 
 const places = usePlacesStore()
 const auth = useAuthStore()
-const theme = useThemeStore()
 
 const container = ref<HTMLElement | null>(null)
 const filter = ref<PlaceStatus | "all">("all")
 const selected = ref<Place | null>(null)
 
 let map: L.Map | null = null
-let tiles: L.TileLayer | null = null
 let layer: L.LayerGroup | null = null
 
 const TABS: { value: PlaceStatus | "all"; label: string }[] = [
@@ -43,10 +40,9 @@ const withoutAddress = computed(
   () => places.items.filter((place) => typeof place.lat !== "number").length,
 )
 
-function tileUrl(): string {
-  const style = theme.theme === "dark" ? "dark_all" : "light_all"
-  return `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png`
-}
+// Тайлы самого OpenStreetMap: без ключей и подписок. Тёмную тему делаем фильтром,
+// потому что тёмной подложки без ключа не существует.
+const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 
 /** Метка: точка в цвете категории, ободок — состояние места. */
 function markerIcon(place: Place): L.DivIcon {
@@ -95,9 +91,9 @@ onMounted(async () => {
     zoomControl: true,
     attributionControl: true,
   })
-  tiles = L.tileLayer(tileUrl(), {
+  L.tileLayer(TILE_URL, {
     maxZoom: 19,
-    attribution: '© OpenStreetMap, © CARTO',
+    attribution: '© OpenStreetMap',
   }).addTo(map)
   layer = L.layerGroup().addTo(map)
   draw()
@@ -113,12 +109,6 @@ watch(filter, () => {
   draw()
 })
 
-watch(
-  () => theme.theme,
-  () => {
-    tiles?.setUrl(tileUrl())
-  },
-)
 </script>
 
 <template>
@@ -216,6 +206,13 @@ watch(
   flex: 1;
   min-height: 0;
   background: var(--paper-deep);
+}
+
+/* Светлая подложка в тёмной теме слепит, поэтому переворачиваем её и приглушаем.
+   Метки и элементы управления живут в других слоях и остаются нетронутыми. */
+:root[data-theme="dark"] .canvas :deep(.leaflet-tile-pane) {
+  filter: invert(1) hue-rotate(185deg) brightness(0.92) contrast(0.86) saturate(0.6);
+  transition: none;
 }
 
 .empty {
